@@ -8,10 +8,11 @@ var colorToStatus = {
   red: 'error'
 };
 
-function status(options, path, cb) {
+function status(options, cb) {
   ajax(
     {
-      url: options.url + path,
+      url: options.url + options.path,
+      method: options.method,
       type: 'json',
       headers: {
         Authorization: 'Basic ' + options.token,
@@ -22,13 +23,15 @@ function status(options, path, cb) {
       cb(data);
     },
     function(error, status, request) {
-      console.log('The ajax request failed: ' + error);
+      console.log('The ajax request failed: ' + error + ' status ' + status);
     }
   );
 }
 
 function allJobs(options, cb) {
-  status(options, '/api/json', function(result) {
+  options.method = 'GET';
+  options.path = '/api/json';
+  status(options, function(result) {
     var jobs = [];
     result.jobs.forEach(function(job) {
       jobs.push({
@@ -40,4 +43,20 @@ function allJobs(options, cb) {
   });
 }
 
-module.exports = allJobs;
+function start(options, job, cb) {
+  options.method = 'POST';
+  options.path = '/job/' + job.replace(' ', '%20') + '/build';
+  status(options, function(result) {
+    var jobs = [];
+    result.jobs.forEach(function(job) {
+      jobs.push({
+        name: job.name,
+        status: colorToStatus[job.color]
+      });
+    });
+    cb(jobs);
+  });
+}
+
+module.exports.all = allJobs;
+module.exports.start = start;

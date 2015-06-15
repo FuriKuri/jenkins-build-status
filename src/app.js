@@ -1,15 +1,7 @@
-/**
- * Welcome to Pebble.js!
- *
- * This is where you write your app.
- */
-
 var UI = require('ui');
 var jenkins = require('jenkins');
-var initialized = false;
 var options = {};
 
-// Create the Menu, supplying the list of fruits
 var fruitMenu = new UI.Menu({
   sections: [{
     title: 'Jobs',
@@ -19,7 +11,7 @@ var fruitMenu = new UI.Menu({
 
 function refresh() {
   console.log("Refresh");
-  jenkins({
+  jenkins.all({
     url: options.url,
     token: options.auth
   }, function(jobs) {
@@ -33,9 +25,17 @@ function refresh() {
   });
 }
 
+
 fruitMenu.on('select', function(e) {
   console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
   console.log('The item is titled "' + e.item.title + '"');
+  
+  jenkins.start({
+    url: options.url,
+    token: options.auth
+  }, e.item.title, function(data) {
+    console.log('Job started ' + data);
+  });
 });
 
 console.log("Load");
@@ -56,8 +56,6 @@ function load() {
       title: 'Setup Jenkins',
       body: 'Please set URL, user and token in configuration.'
     });
-  
-    // Show the new Card
     detailCard.show();
   }
 }
@@ -68,14 +66,11 @@ Pebble.addEventListener("ready", function() {
 });
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  // Show config page
   Pebble.openURL('http://46.101.144.60:9999/config');
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
   console.log("configuration closed");
-  // webview closed
-  //Using primitive JSON validity and non-empty check
   if (e.response.charAt(0) == "{" && e.response.slice(-1) == "}" && e.response.length > 5) {
     options = JSON.parse(decodeURIComponent(e.response));
     console.log("Options = " + JSON.stringify(options));
