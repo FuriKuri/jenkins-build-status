@@ -1,16 +1,15 @@
 {
     "appKeys": {},
     "capabilities": [
-        ""
+        "configurable"
     ],
-    "companyName": "tf.pack@gmail.com",
+    "companyName": "FuriKuri",
     "longName": "Jenkins On Pebble",
     "projectType": "pebblejs",
     "resources": {
         "media": [
             {
                 "file": "images/menu_icon.png",
-                "menuIcon": true,
                 "name": "IMAGE_MENU_ICON",
                 "type": "png"
             },
@@ -28,6 +27,12 @@
                 "file": "fonts/UbuntuMono-Regular.ttf",
                 "name": "MONO_FONT_14",
                 "type": "font"
+            },
+            {
+                "file": "images/headshot28.png",
+                "menuIcon": true,
+                "name": "IMAGES_HEADSHOT28_PNG",
+                "type": "png"
             }
         ]
     },

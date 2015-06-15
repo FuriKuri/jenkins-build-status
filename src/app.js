@@ -5,83 +5,85 @@
  */
 
 var UI = require('ui');
-var Vector2 = require('vector2');
-
-var main = new UI.Card({
-  title: 'Pebble.js',
-  icon: 'images/menu_icon.png',
-  subtitle: 'Hello World!',
-  body: 'Press any button.'
-});
-
-// Make a list of menu items
-var fruits = [
-  {
-    title: "Apple",
-    subtitle: "Green and crispy!"
-  },
-  {
-    title: "Orange",
-    subtitle: "Peel first!"
-  },
-  {
-    title: "Melon",
-    subtitle: "Only three left!"
-  }
-];
+var jenkins = require('jenkins');
+var initialized = false;
+var options = {};
 
 // Create the Menu, supplying the list of fruits
 var fruitMenu = new UI.Menu({
   sections: [{
-    title: 'Fruit List',
-    items: fruits
+    title: 'Jobs',
+    items: []
   }]
 });
 
-// Show the Menu
-fruitMenu.show();
-
-// main.show();
-
-main.on('click', 'up', function(e) {
-  var menu = new UI.Menu({
-    sections: [{
-      items: [{
-        title: 'Pebble.js',
-        icon: 'images/menu_icon.png',
-        subtitle: 'Can do Menus'
-      }, {
-        title: 'Second Item',
-        subtitle: 'Subtitle Text'
-      }]
-    }]
+function refresh() {
+  console.log("Refresh");
+  jenkins({
+    url: options.url,
+    token: options.auth
+  }, function(jobs) {
+    fruitMenu.items(0, []);
+    for ( var x = 0; x < jobs.length; x++ ) {
+      fruitMenu.item(0, x, {
+        title: jobs[x].name,
+        subtitle: jobs[x].status});
+    }
+    fruitMenu.show();
   });
-  menu.on('select', function(e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"');
-  });
-  menu.show();
+}
+
+fruitMenu.on('select', function(e) {
+  console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+  console.log('The item is titled "' + e.item.title + '"');
 });
 
-main.on('click', 'select', function(e) {
-  var wind = new UI.Window({
-    fullscreen: true,
-  });
-  var textfield = new UI.Text({
-    position: new Vector2(0, 65),
-    size: new Vector2(144, 30),
-    font: 'gothic-24-bold',
-    text: 'Text Anywhere!',
-    textAlign: 'center'
-  });
-  wind.add(textfield);
-  wind.show();
+console.log("Load");
+load();
+
+function load() {
+  console.log("ready called!");
+  options.url = localStorage.getItem('url');
+  options.auth = localStorage.getItem('auth');
+  console.log("Load config");
+  if (options.url && options.auth) {
+    console.log("URL is set " + options.url);
+    console.log("Auth is set " + options.auth);
+    refresh();
+  } else {
+    console.log("Please set config");
+    var detailCard = new UI.Card({
+      title: 'Setup Jenkins',
+      body: 'Please set URL, user and token in configuration.'
+    });
+  
+    // Show the new Card
+    detailCard.show();
+  }
+}
+
+Pebble.addEventListener("ready", function() {
+  console.log("Ready");
+  load();
 });
 
-main.on('click', 'down', function(e) {
-  var card = new UI.Card();
-  card.title('A Card');
-  card.subtitle('Is a Window');
-  card.body('The simplest window type in Pebble.js.');
-  card.show();
+Pebble.addEventListener('showConfiguration', function(e) {
+  // Show config page
+  Pebble.openURL('http://46.101.144.60:9999/config');
+});
+
+Pebble.addEventListener("webviewclosed", function(e) {
+  console.log("configuration closed");
+  // webview closed
+  //Using primitive JSON validity and non-empty check
+  if (e.response.charAt(0) == "{" && e.response.slice(-1) == "}" && e.response.length > 5) {
+    options = JSON.parse(decodeURIComponent(e.response));
+    console.log("Options = " + JSON.stringify(options));
+    localStorage.setItem('url', options.url);
+    localStorage.setItem('auth', options.auth);
+    console.log("Config stored");
+    refresh();
+  } else {
+    console.log("Cancelled");
+  }
 });
