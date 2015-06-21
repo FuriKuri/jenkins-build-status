@@ -77,7 +77,7 @@ Pebble.addEventListener("ready", function() {
 });
 
 Pebble.addEventListener('showConfiguration', function(e) {
-  Pebble.openURL('http://46.101.144.60:9999/config');
+  Pebble.openURL('http://furikuri.github.io/jenkins-pebble-config/');
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {

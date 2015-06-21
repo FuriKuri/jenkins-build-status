@@ -40,7 +40,7 @@
     "shortName": "Jenkins Build Status",
     "uuid": "1364410c-65e4-453d-82ad-100a3d532ad1",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": false
     }
