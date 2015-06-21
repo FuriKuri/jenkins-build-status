@@ -4,7 +4,7 @@
         "configurable"
     ],
     "companyName": "FuriKuri",
-    "longName": "Jenkins On Pebble",
+    "longName": "Jenkins Build Status",
     "projectType": "pebblejs",
     "resources": {
         "media": [
@@ -29,15 +29,15 @@
                 "type": "font"
             },
             {
-                "file": "images/headshot28.png",
+                "file": "images/jenkins-icon.png",
                 "menuIcon": true,
-                "name": "IMAGES_HEADSHOT28_PNG",
+                "name": "IMAGES_JENKINS_ICON_PNG",
                 "type": "png"
             }
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Jenkins On Pebble",
+    "shortName": "Jenkins Build Status",
     "uuid": "1364410c-65e4-453d-82ad-100a3d532ad1",
     "versionCode": 1,
     "versionLabel": "1.0",
