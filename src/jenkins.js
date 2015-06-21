@@ -9,52 +9,56 @@ var colorToStatus = {
 };
 
 function status(options, cb) {
-  ajax(
-    {
-      url: options.url + options.path,
-      method: options.method,
-      type: 'json',
-      headers: {
-        Authorization: 'Basic ' + options.token,
+  try {
+    ajax(
+      {
+        url: options.url + options.path,
+        method: options.method,
+        type: 'json',
+        headers: {
+          Authorization: 'Basic ' + options.token,
+        }
+      },
+      function(data, status, request) {
+        cb(null, data);
+      },
+      function(error, status, request) {
+        cb(error, null);
       }
-    },
-    function(data, status, request) {
-      console.log('Got request ' + status);
-      cb(data);
-    },
-    function(error, status, request) {
-      console.log('The ajax request failed: ' + error + ' status ' + status);
-    }
-  );
+    );
+  } catch(e) {
+    cb(e, null);
+  }
 }
 
 function allJobs(options, cb) {
   options.method = 'GET';
   options.path = '/api/json';
-  status(options, function(result) {
-    var jobs = [];
-    result.jobs.forEach(function(job) {
-      jobs.push({
-        name: job.name,
-        status: colorToStatus[job.color]
+  status(options, function(err, result) {
+    if (err) {
+      cb(err, null);
+    } else {
+      var jobs = [];
+      result.jobs.forEach(function(job) {
+        jobs.push({
+          name: job.name,
+          status: colorToStatus[job.color]
+        });
       });
-    });
-    cb(jobs);
+      cb(null, jobs); 
+    }
   });
 }
 
 function start(options, job, cb) {
   options.method = 'POST';
   options.path = '/job/' + job.replace(' ', '%20') + '/build';
-  status(options, function(result) {
-    var jobs = [];
-    result.jobs.forEach(function(job) {
-      jobs.push({
-        name: job.name,
-        status: colorToStatus[job.color]
-      });
-    });
-    cb(jobs);
+  status(options, function(err, result) {
+    if (err) {
+      cb(err, null);
+    } else {
+      cb(null, 'success'); 
+    }
   });
 }
 

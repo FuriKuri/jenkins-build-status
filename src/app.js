@@ -9,32 +9,48 @@ var fruitMenu = new UI.Menu({
   }]
 });
 
+var detailCard = new UI.Card({
+  title: 'Setup Jenkins',
+  body: 'Please set URL, user and token in configuration.'
+});
+
+var jenkinsError = new UI.Card({
+  title: 'Invalid Configuration',
+  body: 'Please check your Jenkins configuration.'
+});
+
 function refresh() {
   console.log("Refresh");
   jenkins.all({
     url: options.url,
     token: options.auth
-  }, function(jobs) {
-    fruitMenu.items(0, []);
-    for ( var x = 0; x < jobs.length; x++ ) {
-      fruitMenu.item(0, x, {
-        title: jobs[x].name,
-        subtitle: jobs[x].status});
+  }, function(err, jobs) {
+    if (err) {
+      console.log('Error: ' + err);
+      jenkinsError.show();
+    } else {
+      fruitMenu.items(0, []);
+      for ( var x = 0; x < jobs.length; x++ ) {
+        fruitMenu.item(0, x, {
+          title: jobs[x].name,
+          subtitle: jobs[x].status});
+      }
+      fruitMenu.show();
     }
-    fruitMenu.show();
   });
 }
 
-
 fruitMenu.on('select', function(e) {
-  console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-  console.log('The item is titled "' + e.item.title + '"');
-  
+  console.log('Job started "' + e.item.title + '"');  
   jenkins.start({
     url: options.url,
     token: options.auth
-  }, e.item.title, function(data) {
-    console.log('Job started ' + data);
+  }, e.item.title, function(err, data) {
+    if (err) {
+      console.log('Error: ' + err);
+    } else {
+      console.log('Job started ' + data);
+    }
   });
 });
 
@@ -42,20 +58,15 @@ console.log("Load");
 load();
 
 function load() {
-  console.log("ready called!");
   options.url = localStorage.getItem('url');
   options.auth = localStorage.getItem('auth');
   console.log("Load config");
-  if (options.url && options.auth) {
+  if (options.url) {
     console.log("URL is set " + options.url);
     console.log("Auth is set " + options.auth);
     refresh();
   } else {
-    console.log("Please set config");
-    var detailCard = new UI.Card({
-      title: 'Setup Jenkins',
-      body: 'Please set URL, user and token in configuration.'
-    });
+    console.log("No config");
     detailCard.show();
   }
 }
